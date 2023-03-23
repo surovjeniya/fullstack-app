@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  api:
+    build: 
+      context: ./api
+      target: development
+      dockerfile: Dockerfile
+    volumes:
+      - ./api:/usr/src/app
+    command: npm run start:dev
+  
+  web:
+    build: 
+      context: ./web
+      target: development
+    command: npm run start
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./web:/usr/src/app
+
+
+

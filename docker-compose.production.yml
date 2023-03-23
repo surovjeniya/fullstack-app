@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  web:
+    build: 
+      context: ./web
+      dockerfile: Dockerfile
+      target: production
+    container_name: fullstack-app-web
+    command: serve -s build -l 3000
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    networks:
+      - fullstack-app-network
+
+
+  api:
+    build: 
+      context: ./api
+      dockerfile: Dockerfile
+      target: production
+    container_name: fullstack-app-api
+    environment:
+      - PORT=3001
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    depends_on:
+      - api_db
+    networks:
+      - fullstack-app-network
+  
+  api_db:
+    image: postgres:15.2-alpine
+    container_name: fullstack-app-api_db
+    environment:
+      POSTGRES_DB: "postgres"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+    volumes:
+      - api_db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - fullstack-app-network
+
+networks:
+  fullstack-app-network:
+    driver: bridge
+volumes:
+  api_db-data:
+    driver: local
+    
